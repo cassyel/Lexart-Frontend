@@ -1,6 +1,7 @@
 import {
   createContext, useState, useMemo, ReactNode,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type UserProps = { token: string | undefined, auth: boolean };
 type ReactProps = { children: ReactNode };
@@ -23,15 +24,16 @@ export const AuthContext = createContext<AuthContextProps>({
 });
 
 function AuthProvider({ children }: ReactProps) {
+  const navigate = useNavigate();
   const [authProps, setAuthProps] = useState<UserProps>(initialUser);
 
   const login = (userData: UserProps) => {
-    console.log(userData);
     setAuthProps({ token: userData.token, auth: userData.auth });
   };
 
   const logout = () => {
     setAuthProps(initialUser);
+    navigate('/login');
   };
 
   const contextValue = useMemo(() => ({
