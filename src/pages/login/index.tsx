@@ -92,7 +92,7 @@ function Login() {
             name="password"
             type="password"
             variant="filled"
-            label="Password"
+            label="Senha"
             autoComplete="password"
             value={loginState.password}
             onChange={(e) => handleInputChange(e)}

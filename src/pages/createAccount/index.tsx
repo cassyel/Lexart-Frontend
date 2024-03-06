@@ -1,17 +1,14 @@
 import { ChangeEvent, useState } from 'react';
 import { Box, FormHelperText, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useLogin } from '../../services/useLogin';
-import lexartLogo from '../../assets/lexart-labs-logo.svg';
 import { ApiError } from '../../errors/apiError';
-import { useAuth } from '../../hooks/useAuth';
+import { useRegister } from '../../services/useRegister';
+import lexartLogo from '../../assets/lexart-labs-logo.svg';
 
 type eventAcceptted = ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 
 function CreateAccount() {
   const navigate = useNavigate();
-  const authContext = useAuth();
 
   const [loginState, setLoginState] = useState(
     {
@@ -22,6 +19,8 @@ function CreateAccount() {
     },
   );
 
+  const [loadingButton, setLoadButton] = useState(false);
+
   const handleInputChange = (e: eventAcceptted) => {
     const { name, value } = e.target;
     setLoginState((prev) => ({ ...prev, [name]: value, wrong: false }));
@@ -29,15 +28,16 @@ function CreateAccount() {
 
   const handleLoginAndNavigate = async () => {
     try {
-      const loginData = await useLogin({
+      setLoadButton(true);
+
+      await useRegister({
         email: loginState.email,
         password: loginState.password,
       });
 
-      authContext.login({ token: loginData.token, auth: loginData.success });
-      axios.defaults.headers.authorization = loginData.token;
+      setLoadButton(false);
 
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       if (error instanceof ApiError) {
         const apiError = error as ApiError; // Type assertion
@@ -85,7 +85,7 @@ function CreateAccount() {
             name="password"
             type="password"
             variant="filled"
-            label="Password"
+            label="Senha"
             autoComplete="password"
             value={loginState.password}
             onChange={(e) => handleInputChange(e)}
@@ -97,7 +97,7 @@ function CreateAccount() {
               <FormHelperText
                 className="self-center !text-red-500"
               >
-                {loginState.errorMessage}
+                {loginState.errorMessage.replace('Password', 'Senha')}
               </FormHelperText>
             )
           }
@@ -107,7 +107,13 @@ function CreateAccount() {
             type="submit"
             onClick={handleLoginAndNavigate}
           >
-            Criar conta
+            {loadingButton ? (
+              <div className="spinner-border spinner-border-sm" role="status">
+                <span className="visually-hidden">Carregando...</span>
+              </div>
+            ) : (
+              'Entrar'
+            )}
           </button>
         </Box>
       </div>
