@@ -13,7 +13,6 @@ export async function useRegister({ email, password }: ILogin) {
     return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      console.log(error.response.data.errorMessage);
       const { status, data } = error.response;
 
       switch (status) {
