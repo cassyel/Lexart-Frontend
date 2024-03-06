@@ -10,9 +10,7 @@ interface ILogin {
 export async function useLogin({ email, password }: ILogin) {
   try {
     const { data }: AxiosResponse = await axios.post('/login', { email, password });
-
-    delete data.sucess;
-    return { data };
+    return data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       const { status } = error.response;

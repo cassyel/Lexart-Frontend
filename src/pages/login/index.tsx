@@ -5,16 +5,18 @@ import axios from 'axios';
 import { useLogin } from '../../services/useLogin';
 import lexartLogo from '../../assets/lexart-labs-logo.svg';
 import { ApiError } from '../../errors/apiError';
+import { useAuth } from '../../hooks/useAuth';
 
 type eventAcceptted = ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 
 function Login() {
   const navigate = useNavigate();
+  const authContext = useAuth();
 
   const [loginState, setLoginState] = useState(
     {
-      email: undefined,
-      password: undefined,
+      email: '',
+      password: '',
       wrong: false,
       errorMessage: '',
     },
@@ -27,12 +29,14 @@ function Login() {
 
   const handleLoginAndNavigate = async () => {
     try {
-      const { data } = await useLogin({
+      const loginData = await useLogin({
         email: loginState.email,
         password: loginState.password,
       });
 
-      axios.defaults.headers.authorization = data.token;
+      authContext.login({ token: loginData.token, auth: loginData.success });
+      axios.defaults.headers.authorization = loginData.token;
+
       navigate('/');
     } catch (error) {
       if (error instanceof ApiError) {

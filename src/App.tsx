@@ -4,23 +4,24 @@ import { ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
 import Login from './pages/login';
+import ErrorElement from './pages/redirect';
+import PrivateRoutes from './components/PrivateRoutes';
+import { AuthProvider } from './context/authContext';
 
 function App() {
   axios.defaults.baseURL = import.meta.env.VITE_APP_API_URL;
   return (
     <BrowserRouter>
-
       <ToastContainer />
-      <Routes>
-        <Route element={<Login />} path="/login" />
-        {/* <Route element={<PrivateRoutes />}>
-          <Route element={<Home />} path="/" />
-          <Route element={<Step2 />} path="/step-2" />
-          <Route element={<Step3 />} path="/step-3" />
-          <Route element={<Step4 />} path="/step-4" />
-          <Route element={<Step5 />} path="/step-5" />
-        </Route> */}
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route element={<Login />} path="/login" />
+          <Route element={<ErrorElement invalidRoute />} path="*" />
+          <Route element={<PrivateRoutes />}>
+            <Route element={<div>TESTE</div>} path="/" />
+          </Route>
+        </Routes>
+      </AuthProvider>
 
     </BrowserRouter>
   );
