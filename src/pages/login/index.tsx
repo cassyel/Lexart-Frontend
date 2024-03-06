@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useLogin } from '../../services/useLogin';
 import lexartLogo from '../../assets/lexart-labs-logo.svg';
+import { ApiError } from '../../errors/apiError';
 
 type eventAcceptted = ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 
@@ -15,6 +16,7 @@ function Login() {
       email: undefined,
       password: undefined,
       wrong: false,
+      errorMessage: '',
     },
   );
 
@@ -33,7 +35,14 @@ function Login() {
       axios.defaults.headers.authorization = data.token;
       navigate('/');
     } catch (error) {
-      setLoginState((prev) => ({ ...prev, wrong: true }));
+      if (error instanceof ApiError) {
+        const apiError = error as ApiError; // Type assertion
+        setLoginState((prev) => ({
+          ...prev,
+          wrong: true,
+          errorMessage: apiError.message,
+        }));
+      }
     }
   };
 
@@ -83,7 +92,7 @@ function Login() {
               <FormHelperText
                 className="self-center !text-red-500"
               >
-                Credenciais inválidas
+                {loginState.errorMessage}
               </FormHelperText>
             )
           }

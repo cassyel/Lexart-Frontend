@@ -17,7 +17,9 @@ module.exports = {
     'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
     'react/prop-types': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    'max-len': ['error', { code: 80, tabWidth: 2, ignorePattern: 'className=' }],
+    'max-len': ['error', {
+      code: 80, tabWidth: 2, ignorePattern: 'className=', ignoreStrings: true,
+    }],
     'import/prefer-default-export': 'off',
     'import/extensions': 'off',
     'import/no-unresolved': 'off',
