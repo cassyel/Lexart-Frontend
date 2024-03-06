@@ -1,5 +1,5 @@
 import { ChangeEvent, useState } from 'react';
-import { Box, TextField } from '@mui/material';
+import { Box, FormHelperText, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useLogin } from '../../services/useLogin';
@@ -9,7 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 type eventAcceptted = ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 
-function Login() {
+function CreateAccount() {
   const navigate = useNavigate();
   const authContext = useAuth();
 
@@ -21,7 +21,6 @@ function Login() {
       errorMessage: '',
     },
   );
-  const [loadingButton, setLoadButton] = useState(false);
 
   const handleInputChange = (e: eventAcceptted) => {
     const { name, value } = e.target;
@@ -30,22 +29,16 @@ function Login() {
 
   const handleLoginAndNavigate = async () => {
     try {
-      setLoadButton(true);
-
       const loginData = await useLogin({
         email: loginState.email,
         password: loginState.password,
       });
 
       authContext.login({ token: loginData.token, auth: loginData.success });
-      setLoadButton(false);
-
       axios.defaults.headers.authorization = loginData.token;
 
       navigate('/');
     } catch (error) {
-      setLoadButton(false);
-
       if (error instanceof ApiError) {
         const apiError = error as ApiError; // Type assertion
         setLoginState((prev) => ({
@@ -75,7 +68,7 @@ function Login() {
           onSubmit={(e) => e.preventDefault()}
           className="max-w-[400px] w-full flex flex-col gap-6"
         >
-          <h1 className="text-white text-2xl">Entre na sua conta</h1>
+          <h1 className="text-white text-2xl ">Crie sua conta</h1>
           <TextField
             name="email"
             label="Email"
@@ -101,11 +94,11 @@ function Login() {
 
           {
             loginState.wrong && (
-              <span
-                className="self-start !text-red-500 text-xs"
+              <FormHelperText
+                className="self-center !text-red-500"
               >
                 {loginState.errorMessage}
-              </span>
+              </FormHelperText>
             )
           }
 
@@ -113,20 +106,6 @@ function Login() {
             className="text-white font-bold bg-[#6EDAA1] p-3 rounded-lg"
             type="submit"
             onClick={handleLoginAndNavigate}
-          >
-            {loadingButton ? (
-              <div className="spinner-border spinner-border-sm" role="status">
-                <span className="visually-hidden">Carregando...</span>
-              </div>
-            ) : (
-              'Entrar'
-            )}
-          </button>
-
-          <button
-            className="text-white underline w-fit"
-            type="submit"
-            onClick={() => navigate('/register')}
           >
             Criar conta
           </button>
@@ -136,4 +115,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default CreateAccount;
