@@ -1,6 +1,12 @@
-import React from 'react';
+type LoadingScreenProps = {
+  getProducts?: boolean,
+  getProduct?: boolean,
+}
 
-function LoadingScreen({ getProducts = false }) {
+function LoadingScreen({
+  getProducts = false,
+  getProduct = false,
+}: LoadingScreenProps) {
   const containerStyle: React.CSSProperties = {
     height: '100vh',
     display: 'flex',
@@ -14,6 +20,14 @@ function LoadingScreen({ getProducts = false }) {
   const textStyles: React.CSSProperties = {
     marginTop: '16px',
   };
+
+  let loadingText = 'Loading...';
+
+  if (getProduct) {
+    loadingText = 'Carregando produto';
+  } else if (getProducts) {
+    loadingText = 'Carregando produtos';
+  }
 
   return (
     <div style={containerStyle}>
@@ -40,9 +54,7 @@ function LoadingScreen({ getProducts = false }) {
           </g>
         </g>
       </svg>
-      <p style={textStyles}>
-        { getProducts ? 'Carregando produtos' : 'Loading...' }
-      </p>
+      <p style={textStyles}>{loadingText}</p>
     </div>
   );
 }

@@ -6,6 +6,7 @@ export const schema = z.object({
   model: z.string().nonempty('Campo obrigatório'),
   data: z.array(
     z.object({
+      id: z.string().optional(),
       color: z.string().nonempty('Campo obrigatório'),
       price: z.string().nonempty('Campo obrigatório'),
     }),
