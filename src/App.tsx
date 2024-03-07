@@ -24,6 +24,7 @@ function App() {
           <Route element={<PrivateRoutes />}>
             <Route element={<Home />} path="/" />
             <Route element={<CreateProduct />} path="/create-product" />
+            <Route element={<h1>Edit</h1>} path="/edit-product/:id" />
           </Route>
         </Routes>
       </AuthProvider>

@@ -179,6 +179,9 @@ function Home() {
                             color="primary"
                             size="small"
                             style={{ marginRight: '8px' }}
+                            onClick={() => {
+                              navigate(`/edit-product/${product.id}`);
+                            }}
                           >
                             Editar
                           </MUI.Button>
