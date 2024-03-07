@@ -22,6 +22,7 @@ function App() {
           <Route element={<ErrorElement invalidRoute />} path="*" />
           <Route element={<PrivateRoutes />}>
             <Route element={<Home />} path="/" />
+            <Route element={<h1>NEW</h1>} path="/create-product" />
           </Route>
         </Routes>
       </AuthProvider>

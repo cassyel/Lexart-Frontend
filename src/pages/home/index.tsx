@@ -11,7 +11,9 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import { Box } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useGetProducts } from '../../services/useGetProducts';
@@ -21,6 +23,8 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { useDeleteProduct } from '../../services/useDeleteProduct';
 
 function Home() {
+  const navigate = useNavigate();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
@@ -33,7 +37,7 @@ function Home() {
         setProducts(data);
         setTimeout(() => setLoadingProducts(!success), 1500);
       } catch (error) {
-        // console.error('Error fetching products:', error);
+        setProducts([]);
       }
     };
 
@@ -49,7 +53,7 @@ function Home() {
 
   async function handleDeleteProduct(id: string) {
     try {
-      setDeletingProduct(id); // Marca o produto que está sendo excluído
+      setDeletingProduct(id);
       const deletedProduct = await useDeleteProduct(id);
 
       setTimeout(() => setDeletingProduct(null), 1000);
@@ -59,7 +63,6 @@ function Home() {
       }
     } catch (error) {
       setDeletingProduct(null); // Reseta o estado em caso de erro
-      console.error('Erro ao excluir o produto:', error);
     }
   }
 
@@ -75,96 +78,121 @@ function Home() {
           component="div"
           className="bg-white p-6 rounded-md shadow-md my-8 mx-auto"
         >
-          <Typography
-            variant="h4"
-            className="font-bold uppercase text-gray-800 mb-6"
-          >
-            Produtos em Estoque (
-            {products.length}
-            )
-          </Typography>
+          <div className="flex justify-between">
+            <Typography
+              variant="h4"
+              className="font-bold uppercase text-gray-800 mb-6"
+            >
+              Produtos em Estoque (
+              {products.length}
+              )
+            </Typography>
 
-          <TableContainer component={Paper} className="mt-4">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Nome</TableCell>
-                  <TableCell>Marca</TableCell>
-                  <TableCell>Modelo</TableCell>
-                  <TableCell>Variações</TableCell>
-                  <TableCell>Ações</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {products.map((product) => (
-                  <React.Fragment key={product.id}>
-                    <TableRow
-                      onClick={() => handleItemClick(product.id)}
-                      className="cursor-pointer hover:shadow-xl hover:shadow-[#F3F4F6]"
-                    >
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell>{product.brand}</TableCell>
-                      <TableCell>{product.model}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap max-w-96">
-                          {product.variants.map((variant) => (
-                            <VariantBox key={variant.id} variant={variant} />
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        className="border"
-                        width={200}
-                        onClick={(e) => e.stopPropagation()}
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => navigate('/create-product')}
+            >
+              <div className="flex justify-center items-center gap-2">
+                <AddBoxIcon style={{ fontSize: 30 }} />
+                <span>Cadastrar produto</span>
+              </div>
+
+            </Button>
+          </div>
+          { products.length === 0 ? (
+            <div className="text-center mt-16">
+              <Typography variant="h6" color="textSecondary">
+                Ops... estamos com o estoque vazio!
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                Cadastre um novo produto
+              </Typography>
+
+            </div>
+          ) : (
+            <TableContainer component={Paper} className="mt-4">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nome</TableCell>
+                    <TableCell>Marca</TableCell>
+                    <TableCell>Modelo</TableCell>
+                    <TableCell>Variações</TableCell>
+                    <TableCell>Ações</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {products.map((product) => (
+                    <React.Fragment key={product.id}>
+                      <TableRow
+                        onClick={() => handleItemClick(product.id)}
+                        className="cursor-pointer hover:shadow-xl hover:shadow-[#F3F4F6]"
                       >
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          style={{ marginRight: '8px' }}
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>{product.brand}</TableCell>
+                        <TableCell>{product.model}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap max-w-96">
+                            {product.variants.map((variant) => (
+                              <VariantBox key={variant.id} variant={variant} />
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell
+                          className="border"
+                          width={200}
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          Editar
-                        </Button>
-                        <Button
-                          onClick={() => handleDeleteProduct(product.id)}
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                        >
-                          {deletingProduct === product.id ? (
-                            <div className="spinner-border spinner-border-sm" role="status">
-                              <span className="visually-hidden">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="animate-spin h-5 w-5 mr-2"
-                                >
-                                  <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            size="small"
+                            style={{ marginRight: '8px' }}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteProduct(product.id)}
+                            variant="outlined"
+                            color="secondary"
+                            size="small"
+                          >
+                            {deletingProduct === product.id ? (
+                              <div className="spinner-border spinner-border-sm" role="status">
+                                <span className="visually-hidden">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="4"
-                                    strokeDasharray="80"
-                                    strokeDashoffset="60"
-                                  />
-                                </svg>
-                              </span>
-                            </div>
-                          ) : (
-                            'Excluir'
-                          )}
-                        </Button>
-                      </TableCell>
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="animate-spin h-5 w-5 mr-2"
+                                  >
+                                    <circle
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                      strokeDasharray="80"
+                                      strokeDashoffset="60"
+                                    />
+                                  </svg>
+                                </span>
+                              </div>
+                            ) : (
+                              'Excluir'
+                            )}
+                          </Button>
+                        </TableCell>
 
-                    </TableRow>
-                    {expandedItem === product.id && (
+                      </TableRow>
+                      {expandedItem === product.id && (
                       <TableRow className="bg-gray-100">
                         <TableCell colSpan={5}>
                           <Table>
@@ -193,12 +221,14 @@ function Home() {
                           </Table>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+
         </Box>
       </Container>
     </div>
