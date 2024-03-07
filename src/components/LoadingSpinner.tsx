@@ -1,6 +1,6 @@
 import React from 'react';
 
-function LoadingScreen() {
+function LoadingScreen({ getProducts = false }) {
   const containerStyle: React.CSSProperties = {
     height: '100vh',
     display: 'flex',
@@ -40,7 +40,9 @@ function LoadingScreen() {
           </g>
         </g>
       </svg>
-      <p style={textStyles}>Loading...</p>
+      <p style={textStyles}>
+        { getProducts ? 'Carregando produtos' : 'Loading...' }
+      </p>
     </div>
   );
 }

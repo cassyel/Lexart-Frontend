@@ -9,6 +9,7 @@ import Login from './pages/login';
 import CreateAccount from './pages/createAccount';
 import ErrorElement from './pages/redirect';
 import Home from './pages/home';
+import CreateProduct from './pages/createProduct';
 
 function App() {
   axios.defaults.baseURL = import.meta.env.VITE_APP_API_URL;
@@ -22,7 +23,7 @@ function App() {
           <Route element={<ErrorElement invalidRoute />} path="*" />
           <Route element={<PrivateRoutes />}>
             <Route element={<Home />} path="/" />
-            <Route element={<h1>NEW</h1>} path="/create-product" />
+            <Route element={<CreateProduct />} path="/create-product" />
           </Route>
         </Routes>
       </AuthProvider>

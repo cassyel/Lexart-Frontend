@@ -67,7 +67,7 @@ function Home() {
   }
 
   if (loadingProducts) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner getProducts />;
   }
 
   return (
@@ -80,8 +80,8 @@ function Home() {
         >
           <div className="flex justify-between">
             <Typography
-              variant="h4"
-              className="font-bold uppercase text-gray-800 mb-6"
+              variant="h6"
+              className="!font-bold uppercase text-[#5b5b5b] mb-6"
             >
               Produtos em Estoque (
               {products.length}
@@ -98,7 +98,6 @@ function Home() {
                 <AddBoxIcon style={{ fontSize: 30 }} />
                 <span>Cadastrar produto</span>
               </div>
-
             </Button>
           </div>
           { products.length === 0 ? (
