@@ -1,7 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 import { Box, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useLogin } from '../../services/useLogin';
 import lexartLogo from '../../assets/lexart-labs-logo.svg';
 import { ApiError } from '../../errors/apiError';
@@ -23,11 +22,6 @@ function Login() {
   );
   const [loadingButton, setLoadButton] = useState(false);
 
-  const handleInputChange = (e: eventAcceptted) => {
-    const { name, value } = e.target;
-    setLoginState((prev) => ({ ...prev, [name]: value, wrong: false }));
-  };
-
   const handleLoginAndNavigate = async () => {
     try {
       setLoadButton(true);
@@ -39,8 +33,6 @@ function Login() {
 
       authContext.login({ token: loginData.token, auth: loginData.success });
       setLoadButton(false);
-
-      axios.defaults.headers.authorization = loginData.token;
 
       navigate('/');
     } catch (error) {
@@ -55,6 +47,11 @@ function Login() {
         }));
       }
     }
+  };
+
+  const handleInputChange = (e: eventAcceptted) => {
+    const { name, value } = e.target;
+    setLoginState((prev) => ({ ...prev, [name]: value, wrong: false }));
   };
 
   return (

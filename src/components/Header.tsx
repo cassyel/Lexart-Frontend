@@ -12,7 +12,7 @@ function Header() {
 
   return (
     <header className="bg-[#26333D] text-white">
-      <div className="mx-8 flex justify-between items-center p-3 border-b">
+      <div className="mx-8 flex justify-between items-center p-3">
         <div className="ml-2">
           <img src={lexartLogo} alt="" width={100} />
         </div>

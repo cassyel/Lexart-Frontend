@@ -26,7 +26,7 @@ function CreateAccount() {
     setLoginState((prev) => ({ ...prev, [name]: value, wrong: false }));
   };
 
-  const handleLoginAndNavigate = async () => {
+  const handleRegisterAndNavigate = async () => {
     try {
       setLoadButton(true);
 
@@ -105,7 +105,7 @@ function CreateAccount() {
           <button
             className="text-white font-bold bg-[#6EDAA1] p-3 rounded-lg"
             type="submit"
-            onClick={handleLoginAndNavigate}
+            onClick={handleRegisterAndNavigate}
           >
             {loadingButton ? (
               <div className="spinner-border spinner-border-sm" role="status">

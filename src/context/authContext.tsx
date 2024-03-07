@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   createContext, useState, useMemo, ReactNode,
 } from 'react';
@@ -13,8 +14,8 @@ interface AuthContextProps {
 }
 
 const initialUser: UserProps = {
-  token: undefined,
-  auth: false,
+  token: localStorage.getItem('token') || undefined,
+  auth: Boolean(localStorage.getItem('token')) || false,
 };
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -27,13 +28,19 @@ function AuthProvider({ children }: ReactProps) {
   const navigate = useNavigate();
   const [authProps, setAuthProps] = useState<UserProps>(initialUser);
 
+  axios.defaults.headers.authorization = authProps.token || null;
+
   const login = (userData: UserProps) => {
+    localStorage.setItem('token', userData.token || '');
     setAuthProps({ token: userData.token, auth: userData.auth });
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
+
     setAuthProps(initialUser);
-    navigate('/login');
+    axios.defaults.headers.authorization = null;
+    navigate('/login', { replace: true });
   };
 
   const contextValue = useMemo(() => ({

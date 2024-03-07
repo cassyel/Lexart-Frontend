@@ -18,3 +18,13 @@ body {
 #root {
   height: 100vh;
 }
+
+.tableRow {
+  cursor: pointer;
+  background-color: white; /* Cor normal */
+  transition: box-shadow 0.3s ease; /* Adiciona uma transição suave para a sombra */
+}
+
+.tableRow:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, .7); /* Adiciona uma sombra vermelha no hover */
+}
