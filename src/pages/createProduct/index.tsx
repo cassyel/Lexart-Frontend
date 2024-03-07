@@ -9,22 +9,31 @@ import {
   Box,
   InputLabel,
   FormControl,
+  FormHelperText,
 } from '@mui/material';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Header from '../../components/Header';
 import { listaCoresCSS } from '../../utils/listColor';
+import { schema, formFields } from '../../utils/zodCreateProduct';
 
 function CreateProduct() {
   const navigate = useNavigate();
-  const { control, handleSubmit, register } = useForm();
-  const { fields, append, remove } = useFieldArray({
+  const {
     control,
-    name: 'variants',
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<formFields>({
+    resolver: zodResolver(schema),
+    defaultValues: { variants: [{ color: '', price: '' }] },
   });
 
-  const handleCreateProduct = (data: unknown) => {
+  const { fields, append, remove } = useFieldArray({ control, name: 'variants' });
+
+  const handleCreateProduct = (data: formFields) => {
     console.log(data);
   };
 
@@ -54,12 +63,37 @@ function CreateProduct() {
 
           <form onSubmit={handleSubmit(handleCreateProduct)} className="w-full flex flex-col gap-4">
             <TextField label="Nome do produto" variant="outlined" className="mb-4 w-full" {...register('name')} />
+            {errors.name && (
+            <FormHelperText
+              error
+            >
+              {errors.name.message}
+            </FormHelperText>
+            )}
 
-            <div className="flex w-full gap-4">
-              <TextField label="Marca" variant="outlined" className="mb-4 w-full" {...register('brand')} />
-              <TextField label="Modelo" variant="outlined" className="mb-4 w-full" {...register('model')} />
+            <div className="flex gap-8">
+              <div className="flex flex-col w-full gap-4">
+                <TextField label="Marca" variant="outlined" className="mb-4 w-full" {...register('brand')} />
+                {errors.brand && (
+                <FormHelperText
+                  error
+                >
+                  {errors.brand.message}
+                </FormHelperText>
+                )}
+              </div>
+
+              <div className="flex flex-col w-full gap-4">
+                <TextField label="Modelo" variant="outlined" className="mb-4 w-full" {...register('model')} />
+                {errors.model && (
+                <FormHelperText
+                  error
+                >
+                  {errors.model.message}
+                </FormHelperText>
+                )}
+              </div>
             </div>
-
             <Typography
               variant="subtitle2"
               className="text-[#5b5b5b] self-start"
@@ -69,52 +103,74 @@ function CreateProduct() {
 
             {fields.map((variant, index) => (
               <div key={variant.id} className="flex mb-4 w-full gap-4">
+                <div>
+                  <Controller
+                    name={`variants.${index}.color`}
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <FormControl>
+                        <InputLabel
+                          id={`select-label-${index}`}
+                        >
+                          Cor
+                        </InputLabel>
+                        <Select
+                          {...field}
+                          variant="outlined"
+                          className="mr-4"
+                          label="Cor"
+                          name={`variants.${index}.color`}
+                          style={{ width: '300px' }}
+                          labelId={`select-label-${index}`}
+                        >
+                          {listaCoresCSS.map((cor) => (
+                            <MenuItem key={cor} value={cor}>
+                              {cor}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                  {errors.variants?.[index]?.color && (
+                  <FormHelperText
+                    error
+                  >
+                    {errors.variants?.[index]?.color?.message}
+                  </FormHelperText>
+                  )}
+                </div>
 
-                <Controller
-                  name={`variants.${index}.color`}
-                  control={control}
-                  defaultValue="blue" // Define o valor padrão como "blue"
-                  render={({ field }) => (
-                    <FormControl>
-                      <InputLabel id="select-label">Cor</InputLabel>
-                      <Select
+                <div>
+                  <Controller
+                    name={`variants.${index}.price`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
                         {...field}
+                        label="Preço"
                         variant="outlined"
                         className="mr-4"
-                        label="Cor"
-                        name="Cor"
-                        style={{ width: '300px' }}
-                        labelId="select-label"
-                      >
-                        {listaCoresCSS.map((cor) => (
-                          <MenuItem key={cor} value={cor}>
-                            {cor}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                        defaultValue="Blue"
+                      />
+                    )}
+                  />
+                  {errors.variants?.[index]?.price && (
+                  <FormHelperText
+                    error
+                  >
+                    {errors.variants?.[index]?.price?.message}
+                  </FormHelperText>
                   )}
-                />
-
-                <Controller
-                  name={`variants.${index}.price`}
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Preço"
-                      variant="outlined"
-                      className="mr-4"
-                      defaultValue="Blue"
-                    />
-                  )}
-                />
+                </div>
 
                 {index > 0 ? (
                   <Button
                     variant="outlined"
                     color="error"
                     onClick={() => remove(index)}
+                    className="h-14"
                   >
                     <DeleteIcon />
                   </Button>
