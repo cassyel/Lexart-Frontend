@@ -1,43 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Container,
-  Typography,
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import * as MUI from '@mui/material';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import TuneIcon from '@mui/icons-material/Tune';
 import { Box } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useGetProducts } from '../../services/useGetProducts';
-import { Product } from '../../types/products';
+import { Product, ProductFilterOptions } from '../../types/products';
 import VariantBox from '../../components/VariantBox';
-import { formatCurrency } from '../../utils/formatCurrency';
 import { useDeleteProduct } from '../../services/useDeleteProduct';
+import DetailsProduct from '../../components/DetailsProduct';
+import SpinnerButton from '../../components/SpinnerButton';
+import EmptyProducts from '../../components/EmptyProducts';
 
 function Home() {
   const navigate = useNavigate();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<string | null>(null);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [filterType, setFilterType] = useState('name');
+  const [filterValue, setFilterValue] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { data, success } = await useGetProducts();
         setProducts(data);
+        setFilteredProducts(data);
         setTimeout(() => setLoadingProducts(!success), 1500);
       } catch (error) {
         setProducts([]);
+        setFilteredProducts([]);
       }
     };
 
@@ -60,11 +58,39 @@ function Home() {
 
       if (deletedProduct.success) {
         setProducts((prev) => prev.filter((product) => product.id !== id));
+        setFilteredProducts((prev) => prev
+          .filter((product) => product.id !== id));
       }
     } catch (error) {
-      setDeletingProduct(null); // Reseta o estado em caso de erro
+      setDeletingProduct(null);
     }
   }
+
+  const toggleSearch = () => {
+    setSearchVisible((prev) => !prev);
+    if (!searchVisible) {
+      setFilterType('name');
+      setFilterValue('');
+      setFilteredProducts(products);
+    }
+  };
+
+  const handleFilterTypeChange = (event: MUI.SelectChangeEvent<string>) => {
+    setFilterType(event.target.value);
+  };
+
+  const filterProducts = (value: string, type: string) => {
+    const filtered = products
+      .filter((product) => product[type as keyof ProductFilterOptions]
+        .toLowerCase().includes(value.toLowerCase()));
+    setFilteredProducts(filtered);
+  };
+
+  const handleFilterValueChange = (event:
+    React.ChangeEvent<HTMLInputElement>) => {
+    setFilterValue(event.target.value);
+    filterProducts(event.target.value, filterType);
+  };
 
   if (loadingProducts) {
     return <LoadingSpinner getProducts />;
@@ -73,163 +99,115 @@ function Home() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <Header />
-      <Container>
-        <Box
-          component="div"
-          className="bg-white p-6 rounded-md shadow-md my-8 mx-auto"
-        >
-          <div className="flex justify-between">
-            <Typography
-              variant="h6"
-              className="!font-bold uppercase text-[#5b5b5b] mb-6"
-            >
+      <MUI.Container>
+        <Box component="div" className="bg-white p-6 rounded-md shadow-md my-8 mx-auto flex flex-col gap-3">
+          <div className="flex justify-between mb-4">
+            <MUI.Typography variant="h6" className="!font-bold uppercase text-[#5b5b5b] mb-6">
               Produtos em Estoque (
-              {products.length}
+              {' '}
+              {filteredProducts.length}
+              {' '}
               )
-            </Typography>
+            </MUI.Typography>
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={() => navigate('/create-product')}
-            >
-              <div className="flex justify-center items-center gap-2">
-                <AddBoxIcon style={{ fontSize: 30 }} />
-                <span>Cadastrar produto</span>
+            <div className="flex items-center gap-4">
+              <div className="relative group">
+                <MUI.IconButton onClick={toggleSearch}>
+                  <TuneIcon />
+                  <MUI.Typography>Filtros</MUI.Typography>
+                </MUI.IconButton>
+
+                {searchVisible && (
+                <div className="absolute border rounded-lg p-3 right-0 top-11 flex flex-col gap-2 transition-all duration-300 ease-in-out">
+                  <MUI.Select value={filterType} onChange={handleFilterTypeChange} className="mr-2 w-28 h-11">
+                    <MUI.MenuItem value="name">Nome</MUI.MenuItem>
+                    <MUI.MenuItem value="brand">Marca</MUI.MenuItem>
+                    <MUI.MenuItem value="model">Modelo</MUI.MenuItem>
+                  </MUI.Select>
+                  <MUI.TextField
+                    label="Filtrar"
+                    variant="outlined"
+                    size="small"
+                    value={filterValue}
+                    onChange={handleFilterValueChange}
+                    className={`h-11 w-60 ${filterValue ? 'border-b-2 border-blue-500' : ''}`}
+                  />
+                </div>
+                )}
               </div>
-            </Button>
-          </div>
-          { products.length === 0 ? (
-            <div className="text-center mt-16">
-              <Typography variant="h6" color="textSecondary">
-                Ops... estamos com o estoque vazio!
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Cadastre um novo produto
-              </Typography>
-
             </div>
+
+          </div>
+          {filteredProducts.length === 0 ? (
+            <EmptyProducts />
           ) : (
-            <TableContainer component={Paper} className="mt-4">
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Nome</TableCell>
-                    <TableCell>Marca</TableCell>
-                    <TableCell>Modelo</TableCell>
-                    <TableCell>Variações</TableCell>
-                    <TableCell>Ações</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {products.map((product) => (
+            <MUI.TableContainer component={MUI.Paper} className={`ransition-all duration-300 ease-in-out ${searchVisible ? 'mt-28' : 'mt-4'}`}>
+              <MUI.Table>
+                <MUI.TableHead>
+                  <MUI.TableRow>
+                    <MUI.TableCell>Nome</MUI.TableCell>
+                    <MUI.TableCell>Marca</MUI.TableCell>
+                    <MUI.TableCell>Modelo</MUI.TableCell>
+                    <MUI.TableCell>Variações</MUI.TableCell>
+                    <MUI.TableCell>Ações</MUI.TableCell>
+                  </MUI.TableRow>
+                </MUI.TableHead>
+                <MUI.TableBody>
+                  {filteredProducts.map((product) => (
                     <React.Fragment key={product.id}>
-                      <TableRow
+                      <MUI.TableRow
                         onClick={() => handleItemClick(product.id)}
                         className="cursor-pointer hover:shadow-xl hover:shadow-[#F3F4F6]"
                       >
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.brand}</TableCell>
-                        <TableCell>{product.model}</TableCell>
-                        <TableCell>
+                        <MUI.TableCell>{product.name}</MUI.TableCell>
+                        <MUI.TableCell>{product.brand}</MUI.TableCell>
+                        <MUI.TableCell>{product.model}</MUI.TableCell>
+                        <MUI.TableCell>
                           <div className="flex flex-wrap max-w-96">
                             {product.variants.map((variant) => (
                               <VariantBox key={variant.id} variant={variant} />
                             ))}
                           </div>
-                        </TableCell>
-                        <TableCell
+                        </MUI.TableCell>
+                        <MUI.TableCell
                           className="border"
                           width={200}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <Button
+                          <MUI.Button
                             variant="outlined"
                             color="primary"
                             size="small"
                             style={{ marginRight: '8px' }}
                           >
                             Editar
-                          </Button>
-                          <Button
+                          </MUI.Button>
+                          <MUI.Button
                             onClick={() => handleDeleteProduct(product.id)}
                             variant="outlined"
                             color="secondary"
                             size="small"
                           >
-                            {deletingProduct === product.id ? (
-                              <div className="spinner-border spinner-border-sm" role="status">
-                                <span className="visually-hidden">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="animate-spin h-5 w-5 mr-2"
-                                  >
-                                    <circle
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                      strokeDasharray="80"
-                                      strokeDashoffset="60"
-                                    />
-                                  </svg>
-                                </span>
-                              </div>
-                            ) : (
-                              'Excluir'
-                            )}
-                          </Button>
-                        </TableCell>
-
-                      </TableRow>
+                            {deletingProduct === product.id ? (<SpinnerButton />) : ('Excluir')}
+                          </MUI.Button>
+                        </MUI.TableCell>
+                      </MUI.TableRow>
                       {expandedItem === product.id && (
-                      <TableRow className="bg-gray-100">
-                        <TableCell colSpan={5}>
-                          <Table>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell>Modelo</TableCell>
-                                <TableCell>Marca</TableCell>
-                                <TableCell>Cor</TableCell>
-                                <TableCell>Preço</TableCell>
-                                <TableCell>Número de Série</TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {product.variants.map((variant) => (
-                                <TableRow key={variant.id}>
-                                  <TableCell>{product.model}</TableCell>
-                                  <TableCell>{product.brand}</TableCell>
-                                  <TableCell>{variant.color}</TableCell>
-                                  <TableCell>
-                                    {formatCurrency(variant.price)}
-                                  </TableCell>
-                                  <TableCell>{variant.id}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableCell>
-                      </TableRow>
-                      )}
+                      <DetailsProduct product={product} />)}
                     </React.Fragment>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                </MUI.TableBody>
+              </MUI.Table>
+            </MUI.TableContainer>
           )}
-
+          <MUI.Button variant="contained" color="primary" size="small" onClick={() => navigate('/create-product')}>
+            <div className="flex items-center gap-2">
+              <AddBoxIcon style={{ fontSize: 30 }} />
+              <span>Cadastrar produto</span>
+            </div>
+          </MUI.Button>
         </Box>
-      </Container>
+      </MUI.Container>
     </div>
   );
 }

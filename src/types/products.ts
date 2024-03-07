@@ -17,3 +17,10 @@ export type ApiResponse = {
   data: Product[];
   success: boolean;
 };
+
+export type ProductFilterOptions = {
+  id: string;
+  name: string;
+  brand: string;
+  model: string;
+}
