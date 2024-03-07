@@ -18,11 +18,13 @@ import { useGetProducts } from '../../services/useGetProducts';
 import { Product } from '../../types/products';
 import VariantBox from '../../components/VariantBox';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useDeleteProduct } from '../../services/useDeleteProduct';
 
 function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +46,22 @@ function Home() {
       : productId
     ));
   };
+
+  async function handleDeleteProduct(id: string) {
+    try {
+      setDeletingProduct(id); // Marca o produto que está sendo excluído
+      const deletedProduct = await useDeleteProduct(id);
+
+      setTimeout(() => setDeletingProduct(null), 1000);
+
+      if (deletedProduct.success) {
+        setProducts((prev) => prev.filter((product) => product.id !== id));
+      }
+    } catch (error) {
+      setDeletingProduct(null); // Reseta o estado em caso de erro
+      console.error('Erro ao excluir o produto:', error);
+    }
+  }
 
   if (loadingProducts) {
     return <LoadingSpinner />;
@@ -108,11 +126,40 @@ function Home() {
                           Editar
                         </Button>
                         <Button
+                          onClick={() => handleDeleteProduct(product.id)}
                           variant="outlined"
                           color="secondary"
                           size="small"
                         >
-                          Excluir
+                          {deletingProduct === product.id ? (
+                            <div className="spinner-border spinner-border-sm" role="status">
+                              <span className="visually-hidden">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="animate-spin h-5 w-5 mr-2"
+                                >
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                    strokeDasharray="80"
+                                    strokeDashoffset="60"
+                                  />
+                                </svg>
+                              </span>
+                            </div>
+                          ) : (
+                            'Excluir'
+                          )}
                         </Button>
                       </TableCell>
 
