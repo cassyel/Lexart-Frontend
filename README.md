@@ -1,31 +1,24 @@
-# React + TypeScript + Vite
+# Lexart Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositório contém o código-fonte do frontend desenvolvido para interagir com a API Lexart Backend, implantada na Vercel. O frontend foi criado com o objetivo de proporcionar uma interface amigável para os usuários, permitindo o acesso e a manipulação dos recursos fornecidos pela API.
 
-Currently, two official plugins are available:
+## Principais Recursos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Integração com a API:** O frontend utiliza chamadas HTTP para interagir com a API Lexart Backend hospedada na Vercel, consumindo dados e executando operações como registro, autenticação, criação e gerenciamento de produtos.
 
-## Expanding the ESLint configuration
+- **Interface Responsiva:** Desenvolvida com foco na experiência do usuário, a interface é responsiva e acessível em diferentes dispositivos, proporcionando uma experiência consistente.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Gerenciamento de Estado:** Utiliza tecnologias modernas para gerenciamento de estado, garantindo uma aplicação eficiente e reativa.
 
-- Configure the top-level `parserOptions` property like this:
+## Como Utilizar
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+O Lexart Frontend está implantado na Vercel, eliminando a necessidade de configuração local. Basta acessar a aplicação por meio desse [link](https://lexart-frontend-murex.vercel.app/).
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
-# Lexart-Frontend
+## Contribuições
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir problemas, propor melhorias ou enviar solicitações de pull. Juntos, podemos aprimorar tanto o frontend quanto o backend para proporcionar uma experiência completa aos usuários.
+
+## Agradecimentos
+
+Agradecemos por utilizar o Lexart Frontend para consumir a API Lexart Backend implantada na Vercel. Esperamos que a aplicação atenda às suas necessidades e estamos abertos a feedback para continuarmos melhorando.
+
