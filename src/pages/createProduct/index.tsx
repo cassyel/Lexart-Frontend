@@ -1,55 +1,31 @@
-import { useState } from 'react';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import {
-  Container, Typography, TextField, Button, Autocomplete,
+  TextField,
+  Select,
+  MenuItem,
+  Button,
+  Typography,
+  Container,
+  Box,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Box } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
-import { Variant } from '../../types/products';
 import { listaCoresCSS } from '../../utils/listColor';
 
 function CreateProduct() {
   const navigate = useNavigate();
-  const [variants, setVariants] = useState([{ price: '', color: '' }]);
+  const { control, handleSubmit, register } = useForm();
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'variants',
+  });
 
-  const handleAddVariant = () => {
-    setVariants([...variants, { price: '', color: '' }]);
-  };
-
-  const handleVariantChange = (
-    index: number,
-    key: keyof Variant,
-    value: string | null,
-  ) => {
-    const updatedVariants = [...variants];
-    updatedVariants[index] = {
-      ...updatedVariants[index],
-      [key]: value,
-    };
-
-    if (key === 'color') {
-      const isColorAlreadyChosen = updatedVariants.some(
-        (variant, i) => i !== index && variant.color === value,
-      );
-
-      if (isColorAlreadyChosen) {
-        updatedVariants[index] = {
-          ...updatedVariants[index],
-          [key]: '',
-        };
-        console.log('A mesma cor já foi escolhida em outra variante.');
-      }
-    }
-
-    setVariants(updatedVariants);
-  };
-
-  const handleRemoveVariant = (index: number) => {
-    const updatedVariants = [...variants];
-    updatedVariants.splice(index, 1);
-    setVariants(updatedVariants);
+  const handleCreateProduct = (data: unknown) => {
+    console.log(data);
   };
 
   return (
@@ -71,83 +47,107 @@ function CreateProduct() {
               variant="subtitle2"
               className="text-[#5b5b5b] underline"
             >
-              Para cadastrar um produto
-              deve ser informado pelo menos uma variante
+              Para cadastrar um produto deve ser
+              informada pelo menos uma variante
             </Typography>
           </div>
 
-          <TextField label="Nome do produto" variant="outlined" className="mb-4 w-full" />
+          <form onSubmit={handleSubmit(handleCreateProduct)} className="w-full flex flex-col gap-4">
+            <TextField label="Nome do produto" variant="outlined" className="mb-4 w-full" {...register('name')} />
 
-          <div className="flex w-full gap-4">
-            <TextField label="Marca" variant="outlined" className="mb-4 w-full" />
-            <TextField label="Modelo" variant="outlined" className="mb-4 w-full" />
-          </div>
+            <div className="flex w-full gap-4">
+              <TextField label="Marca" variant="outlined" className="mb-4 w-full" {...register('brand')} />
+              <TextField label="Modelo" variant="outlined" className="mb-4 w-full" {...register('model')} />
+            </div>
 
-          <Typography
-            variant="subtitle2"
-            className="text-[#5b5b5b] self-start"
-          >
-            (Preencha abaixo os dados da variante)
-          </Typography>
+            <Typography
+              variant="subtitle2"
+              className="text-[#5b5b5b] self-start"
+            >
+              (Preencha abaixo os dados da variante)
+            </Typography>
 
-          {variants.map((variant, index) => (
-            <div key={variant.color} className="flex mb-4 w-full gap-4">
-              <TextField
-                label="Preço"
-                variant="outlined"
-                className="mr-4"
-                value={variant.price}
-                onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
-              />
-              <Autocomplete
-                options={listaCoresCSS}
-                renderInput={(params) => (
-                  <TextField {...params} label="Cor" variant="outlined" className="mr-4" />
-                )}
-                value={variant.color}
-                onChange={(_, newValue) => handleVariantChange(index, 'color', newValue)}
-                className="min-w-48"
-              />
-              {
-                index > 0 ? (
+            {fields.map((variant, index) => (
+              <div key={variant.id} className="flex mb-4 w-full gap-4">
+
+                <Controller
+                  name={`variants.${index}.color`}
+                  control={control}
+                  defaultValue="blue" // Define o valor padrão como "blue"
+                  render={({ field }) => (
+                    <FormControl>
+                      <InputLabel id="select-label">Cor</InputLabel>
+                      <Select
+                        {...field}
+                        variant="outlined"
+                        className="mr-4"
+                        label="Cor"
+                        name="Cor"
+                        style={{ width: '300px' }}
+                        labelId="select-label"
+                      >
+                        {listaCoresCSS.map((cor) => (
+                          <MenuItem key={cor} value={cor}>
+                            {cor}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+
+                <Controller
+                  name={`variants.${index}.price`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Preço"
+                      variant="outlined"
+                      className="mr-4"
+                      defaultValue="Blue"
+                    />
+                  )}
+                />
+
+                {index > 0 ? (
                   <Button
                     variant="outlined"
                     color="error"
-                    onClick={() => handleRemoveVariant(index)}
+                    onClick={() => remove(index)}
                   >
                     <DeleteIcon />
                   </Button>
-                ) : undefined
-              }
+                ) : undefined}
+              </div>
+            ))}
 
-            </div>
-          ))}
-
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={handleAddVariant}
-            className="mb-4 self-start"
-          >
-            <div className="flex justify-center items-center gap-2">
-              <AddBoxIcon style={{ fontSize: 30 }} />
-              <span>Adicionar outra variante</span>
-            </div>
-          </Button>
-
-          <div className=" w-full flex gap-5 justify-end">
-            <Button variant="contained" color="primary">
-              Cadastrar Produto
-            </Button>
             <Button
               variant="contained"
-              color="error"
-              onClick={() => navigate('/')}
+              color="primary"
+              size="small"
+              onClick={() => append({ price: '', color: '' })}
+              className="mb-4 self-start"
             >
-              Cancelar
+              <div className="flex justify-center items-center gap-2">
+                <AddBoxIcon style={{ fontSize: 30 }} />
+                <span>Adicionar outra variante</span>
+              </div>
             </Button>
-          </div>
+
+            <div className=" w-full flex gap-5 justify-end">
+              <Button variant="contained" type="submit" color="primary">
+                Cadastrar Produto
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => navigate('/')}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </form>
         </Box>
       </Container>
     </div>
