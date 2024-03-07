@@ -17,7 +17,8 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Header from '../../components/Header';
 import { listaCoresCSS } from '../../utils/listColor';
-import { schema, formFields } from '../../utils/zodCreateProduct';
+import { schema, CreateProductFields } from '../../utils/zodCreateProduct';
+import { useCreateProduct } from '../../services/useCreateProduct';
 
 function CreateProduct() {
   const navigate = useNavigate();
@@ -26,15 +27,17 @@ function CreateProduct() {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<formFields>({
+    reset,
+  } = useForm<CreateProductFields>({
     resolver: zodResolver(schema),
-    defaultValues: { variants: [{ color: '', price: '' }] },
+    defaultValues: { data: [{ color: '', price: '' }] },
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: 'variants' });
+  const { fields, append, remove } = useFieldArray({ control, name: 'data' });
 
-  const handleCreateProduct = (data: formFields) => {
-    console.log(data);
+  const handleCreateProduct = (data: CreateProductFields) => {
+    useCreateProduct(data);
+    reset();
   };
 
   return (
@@ -45,7 +48,7 @@ function CreateProduct() {
           component="div"
           className="bg-white p-6 rounded-md shadow-md my-8 mx-auto flex flex-col items-center gap-4 max-w-3xl"
         >
-          <div className=" self-start">
+          <div className="self-start">
             <Typography
               variant="h6"
               className="!font-bold uppercase text-[#5b5b5b] mb-6"
@@ -105,7 +108,7 @@ function CreateProduct() {
               <div key={variant.id} className="flex mb-4 w-full gap-4">
                 <div>
                   <Controller
-                    name={`variants.${index}.color`}
+                    name={`data.${index}.color`}
                     control={control}
                     defaultValue=""
                     render={({ field }) => (
@@ -120,7 +123,7 @@ function CreateProduct() {
                           variant="outlined"
                           className="mr-4"
                           label="Cor"
-                          name={`variants.${index}.color`}
+                          name={`data.${index}.color`}
                           style={{ width: '300px' }}
                           labelId={`select-label-${index}`}
                         >
@@ -133,18 +136,18 @@ function CreateProduct() {
                       </FormControl>
                     )}
                   />
-                  {errors.variants?.[index]?.color && (
+                  {errors.data?.[index]?.color && (
                   <FormHelperText
                     error
                   >
-                    {errors.variants?.[index]?.color?.message}
+                    {errors.data?.[index]?.color?.message}
                   </FormHelperText>
                   )}
                 </div>
 
                 <div>
                   <Controller
-                    name={`variants.${index}.price`}
+                    name={`data.${index}.price`}
                     control={control}
                     render={({ field }) => (
                       <TextField
@@ -156,11 +159,11 @@ function CreateProduct() {
                       />
                     )}
                   />
-                  {errors.variants?.[index]?.price && (
+                  {errors.data?.[index]?.price && (
                   <FormHelperText
                     error
                   >
-                    {errors.variants?.[index]?.price?.message}
+                    {errors.data?.[index]?.price?.message}
                   </FormHelperText>
                   )}
                 </div>
@@ -191,17 +194,29 @@ function CreateProduct() {
               </div>
             </Button>
 
-            <div className=" w-full flex gap-5 justify-end">
-              <Button variant="contained" type="submit" color="primary">
-                Cadastrar Produto
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => navigate('/')}
-              >
-                Cancelar
-              </Button>
+            <div className="w-full flex mt-5 justify-between">
+              <div>
+                <Button
+                  variant="text"
+                  color="primary"
+                  className="self"
+                  onClick={() => navigate('/')}
+                >
+                  Visualizar produtos
+                </Button>
+              </div>
+              <div className="flex gap-5">
+                <Button variant="contained" type="submit" color="primary">
+                  Cadastrar Produto
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => navigate('/')}
+                >
+                  Cancelar
+                </Button>
+              </div>
             </div>
           </form>
         </Box>

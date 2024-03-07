@@ -4,7 +4,7 @@ export const schema = z.object({
   name: z.string().nonempty('Campo obrigatório'),
   brand: z.string().nonempty('Campo obrigatório'),
   model: z.string().nonempty('Campo obrigatório'),
-  variants: z.array(
+  data: z.array(
     z.object({
       color: z.string().nonempty('Campo obrigatório'),
       price: z.string().nonempty('Campo obrigatório'),
@@ -12,4 +12,4 @@ export const schema = z.object({
   ).nonempty(),
 });
 
-export type formFields = z.infer<typeof schema>
+export type CreateProductFields = z.infer<typeof schema>
